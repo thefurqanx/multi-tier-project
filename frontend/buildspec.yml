@@ -1,16 +1,18 @@
 version: 0.2
+
 phases:
-  pre_build:
+  install:
+    runtime-versions:
+      nodejs: 18
     commands:
-      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 927026871483.dkr.ecr.ap-south-1.amazonaws.com
+      - echo "Installing dependencies for frontend..."
+      - cd frontend
+      - npm install
   build:
     commands:
-      - docker build -t backend-app .
-      - docker tag backend-app:latest 927026871483.dkr.ecr.ap-south-1.amazonaws.com/backend-app:latest
-  post_build:
-    commands:
-      - docker push 927026871483.dkr.ecr.ap-south-1.amazonaws.com/backend-app:latest
-      - printf '[{"name":"backend","imageUri":"%s"}]' 927026871483.dkr.ecr.ap-south-1.amazonaws.com/backend-app:latest > imagedefinitions.json
+      - echo "Building the React production bundle..."
+      - npm run build
 artifacts:
+  base-directory: frontend/build
   files:
-    - imagedefinitions.json
+    - '**/*'
