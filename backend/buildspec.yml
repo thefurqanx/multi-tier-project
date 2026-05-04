@@ -1,17 +1,24 @@
 version: 0.2
+
 phases:
   pre_build:
     commands:
+      - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 927026871483.dkr.ecr.ap-south-1.amazonaws.com
   build:
     commands:
+      - echo "Building the Docker image..."
       - cd backend
       - docker build -t backend-app .
       - docker tag backend-app:latest 927026871483.dkr.ecr.ap-south-1.amazonaws.com/backend-app:latest
   post_build:
     commands:
+      - echo "Pushing the Docker image to ECR..."
       - docker push 927026871483.dkr.ecr.ap-south-1.amazonaws.com/backend-app:latest
-      - printf '[{"name":"backend","imageUri":"%s"}]' 927026871483.dkr.ecr.ap-south-1.amazonaws.com/backend-app:latest > imagedefinitions.json
+      - echo "Creating imagedefinitions.json file in the root directory..."
+      # Hum yahan ../ use kar rahay hain taake file 'backend' folder se nikal kar main root mein banay
+      - printf '[{"name":"backend","imageUri":"%s"}]' 927026871483.dkr.ecr.ap-south-1.amazonaws.com/backend-app:latest > ../imagedefinitions.json
+
 artifacts:
   files:
     - imagedefinitions.json
